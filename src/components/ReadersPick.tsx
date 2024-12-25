@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import { Ratings } from "./Rating";
 
-export default function FeaturedBooks() {
+export default function ReadersPick() {
   const [books, setBooks] = useState<any>([]);
-
   useEffect(() => {
     async function fetchData() {
       const response = await fetch(
@@ -18,9 +16,7 @@ export default function FeaturedBooks() {
   }, []);
   return (
     <div className="mt-[6rem]">
-      <h2 className="font-semibold text-xl text-left mb-7">
-        BOOKTOPIA FEATURED BOOKS
-      </h2>
+      <h2 className="font-semibold text-xl text-left mb-7">READER'S PICK</h2>
       <div className="h-[1px] bg-zinc-300 mb-12"></div>
       <div className="grid grid-cols-3 gap-10">
         {books.length > 0
@@ -35,7 +31,6 @@ export default function FeaturedBooks() {
                   alt=""
                 />
                 <div className="flex flex-col justify-between p-4 leading-normal">
-                  <Ratings rating={4.1} totalStars={5} variant="yellow" />
                   <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white text-left">
                     {book.title}
                   </h5>

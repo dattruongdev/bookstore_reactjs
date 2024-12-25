@@ -1,27 +1,19 @@
 import "./App.css";
-import FeaturedBooks from "./components/FeaturedBooks";
-import FeaturesCard from "./components/FeaturesCard";
-import Hero from "./components/Hero";
-import Navbar from "./components/navbar";
-import Searches from "./components/Searches";
+import Footer from "./components/Footer";
+import { Outlet } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Contact from "./components/Contact";
 
 function App() {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <Hero />
-      <Searches />
-      <div className="mt-10 grid grid-cols-6 justify-items-center">
-        <FeaturesCard textA={"Best"} textB={"Seller"} />
-        <FeaturesCard textA={"New"} textB={"Release"} />
-        <FeaturesCard textA={"Coming"} textB={"Soon"} />
-        <FeaturesCard textA={"Audio"} textB={"Book"} />
-        <FeaturesCard textA={"E-Books"} textB={""} />
-        <FeaturesCard textA={"Sales"} textB={""} />
+      <div className="grow">
+        <Outlet />
       </div>
-
-      <FeaturedBooks />
-    </>
+      <Contact />
+      <Footer />
+    </div>
   );
 }
 
