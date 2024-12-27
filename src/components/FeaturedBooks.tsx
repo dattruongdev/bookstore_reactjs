@@ -6,12 +6,11 @@ export default function FeaturedBooks() {
 
   useEffect(() => {
     async function fetchData() {
-      const response = await fetch(
-        "http://localhost:8080/api/v1/catalog/books"
+      const res = await fetch(
+        "http://localhost:8080/api/v1/catalog/featured-books"
       );
-      const data = await response.json();
-      console.log(data);
-      setBooks(data.data);
+      const { response } = await res.json();
+      setBooks(response.data);
     }
 
     fetchData();

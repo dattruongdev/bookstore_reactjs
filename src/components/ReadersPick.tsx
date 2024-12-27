@@ -4,12 +4,9 @@ export default function ReadersPick() {
   const [books, setBooks] = useState<any>([]);
   useEffect(() => {
     async function fetchData() {
-      const response = await fetch(
-        "http://localhost:8080/api/v1/catalog/books"
-      );
-      const data = await response.json();
-      console.log(data);
-      setBooks(data.data);
+      const res = await fetch("http://localhost:8080/api/v1/catalog/books");
+      const { response } = await res.json();
+      setBooks(response.data);
     }
 
     fetchData();
