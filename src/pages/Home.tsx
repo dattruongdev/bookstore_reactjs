@@ -16,22 +16,20 @@ export default function Home() {
     <div>
       <Hero />
       <Searches />
-      <div className="mt-10 grid grid-cols-6 justify-items-center">
-        <FeaturesCard textA={"Best"} textB={"Seller"} />
+      <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center gap-10">
+        <FeaturesCard textA={"Featured"} textB={"Books"} />
         <FeaturesCard textA={"New"} textB={"Release"} />
-        <FeaturesCard textA={"Coming"} textB={"Soon"} />
-        <FeaturesCard textA={"Audio"} textB={"Book"} />
-        <FeaturesCard textA={"E-Books"} textB={""} />
-        <FeaturesCard textA={"Sales"} textB={""} />
+        <FeaturesCard textA={"Week"} textB={"Deals"} />
+        <FeaturesCard textA={"Reader's"} textB={"Pick"} />
       </div>
 
       <FeaturedBooks />
       <ReadersPick />
       <TopFeedbacks />
       <WeekDeals />
-      <FavAuthors />
+      {/* <FavAuthors /> */}
       <NewRelease />
-      <Milestones />
+      {/* <Milestones /> */}
       <FAQ />
     </div>
   );
