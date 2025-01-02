@@ -2,12 +2,20 @@ import { useEffect, useState } from "react";
 import { Ratings } from "./Rating";
 import { mapApiResponseToBook } from "../utils/mapper";
 import { Button } from "./ui/button";
+import { useDispatch, useSelector } from "react-redux";
+import { addBook } from "../redux/slices/cartSlice";
+import { RootState } from "../redux/store";
+import { addOrRemoveBookFromCart } from "../utils/cart";
 
 const BASE_URL: string = import.meta.env.VITE_BASE_URL;
 
 export default function FeaturedBooks() {
+  const cart = useSelector((state: RootState) => state.cart);
+
+  const dispatch = useDispatch();
   const [books, setBooks] = useState<Book[]>([]);
   console.log("FEATURED", books);
+  console.log("CART", cart);
 
   useEffect(() => {
     async function fetchData() {
@@ -75,8 +83,17 @@ export default function FeaturedBooks() {
                         })}{" "}
                   </h2>
 
-                  <Button className="flex w-[150px] rounded-full mt-4 bg-pink-400">
-                    Add to Cart
+                  <Button
+                    className="flex w-[150px] rounded-full mt-4 bg-pink-400"
+                    onClick={(e) => {
+                      e.preventDefault();
+
+                      dispatch(addOrRemoveBookFromCart(book, cart.books));
+                    }}
+                  >
+                    {cart.books.some((b: Book) => b.id == book.id)
+                      ? "Remove from Cart"
+                      : "Add to Cart"}
                   </Button>
                 </div>
               </a>

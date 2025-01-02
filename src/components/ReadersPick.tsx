@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 import { mapApiResponseToBook } from "../utils/mapper";
-import { ShoppingCart, Star } from "lucide-react";
+import { Check, ShoppingCart, Star } from "lucide-react";
+import { Button } from "./ui/button";
+import { addOrRemoveBookFromCart } from "../utils/cart";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
 const BASE_URL: string = import.meta.env.VITE_BASE_URL;
 
 export default function ReadersPick() {
   const [books, setBooks] = useState<Book[]>([]);
+  const dispatch = useDispatch();
+  const cart = useSelector((state: RootState) => state.cart);
 
   useEffect(() => {
     async function fetchData() {
@@ -43,9 +49,18 @@ export default function ReadersPick() {
                     alt=""
                   />
 
-                  <div className="absolute right-0 bg-pink-400 z-[2] bottom-0 p-3">
-                    <ShoppingCart size={20} color={"white"} />
-                  </div>
+                  <Button
+                    className="absolute right-0 bg-pink-400 z-[2] bottom-0 p-3"
+                    onClick={() =>
+                      dispatch(addOrRemoveBookFromCart(book, cart.books))
+                    }
+                  >
+                    {cart.books.find((b) => b.id === book.id) ? (
+                      <Check size={20} color={"white"} />
+                    ) : (
+                      <ShoppingCart size={20} color={"white"} />
+                    )}
+                  </Button>
                 </div>
                 <div className="flex flex-col justify-between p-4 leading-normal">
                   <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">

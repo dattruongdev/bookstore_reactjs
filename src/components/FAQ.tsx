@@ -1,5 +1,6 @@
 import { Fragment, useState } from "react";
 import { Button } from "./ui/button";
+import { cn } from "../lib/utils";
 
 function ExpandButton() {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -15,17 +16,19 @@ function ExpandButton() {
 
 export default function FAQ() {
   const [questions, setQuestions] = useState<
-    { title: string; answer: string }[]
+    { title: string; answer: string; expanded: boolean }[]
   >([
     {
       title: "How can I purchase a Book?",
       answer:
         "You can purchase a book by clicking the 'Add to Cart' button. And after choosing the books, you can click checkout to proceed to payment.",
+      expanded: false,
     },
     {
       title: "What payment methods does Booktopia have?",
       answer:
         "Currently we can only pay through Stripe. You have to provide you bank card pay.",
+      expanded: false,
     },
   ]);
   return (
@@ -38,9 +41,29 @@ export default function FAQ() {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold text-lg">{question.title}</h3>
-                    <ExpandButton />
+                    <div
+                      onClick={() => {
+                        setQuestions(
+                          questions.map((q) => {
+                            if (q.title === question.title) {
+                              return { ...q, expanded: !q.expanded };
+                            }
+                            return q;
+                          })
+                        );
+                      }}
+                    >
+                      <ExpandButton />
+                    </div>
                   </div>
-                  <div className="text-left">{question.answer}</div>
+                  <div
+                    className={cn(
+                      "text-left",
+                      question.expanded ? "" : "hidden"
+                    )}
+                  >
+                    {question.answer}
+                  </div>
                 </div>
                 <div className="h-[1px] bg-zinc-300 my-8"></div>
               </Fragment>

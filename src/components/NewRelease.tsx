@@ -9,12 +9,18 @@ import {
 import { mapApiResponseToBook } from "../utils/mapper";
 import { Ratings } from "./Rating";
 import { Button } from "./ui/button";
-import { ShoppingCart, Star } from "lucide-react";
+import { Check, ShoppingCart, Star } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { addBook, removeBook } from "../redux/slices/cartSlice";
+import { RootState } from "../redux/store";
+import { addOrRemoveBookFromCart } from "../utils/cart";
 
 const BASE_URL: string = import.meta.env.VITE_BASE_URL;
 
 export default function NewRelease() {
   const [books, setBooks] = useState<any>([]);
+  const dispatch = useDispatch();
+  const cart = useSelector((state: RootState) => state.cart);
 
   useEffect(() => {
     async function fetchData() {
@@ -83,8 +89,16 @@ export default function NewRelease() {
                     })}{" "}
               </h2>
 
-              <Button className="flex w-[150px] rounded-full mt-4 bg-pink-400">
-                Add to Cart
+              <Button
+                className="flex w-[150px] rounded-full mt-4 bg-pink-400"
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(addOrRemoveBookFromCart(books[0], cart.books));
+                }}
+              >
+                {cart.books.some((b: Book) => b.id == books[0].id)
+                  ? "Remove from Cart"
+                  : "Add to Cart"}
               </Button>
             </div>
           </a>
@@ -104,9 +118,18 @@ export default function NewRelease() {
                           alt=""
                         />
 
-                        <div className="absolute right-0 bg-pink-400 z-[2] bottom-0 p-3">
-                          <ShoppingCart size={20} color={"white"} />
-                        </div>
+                        <Button
+                          className="absolute right-0 bg-pink-400 z-[2] bottom-0 p-3"
+                          onClick={() =>
+                            dispatch(addOrRemoveBookFromCart(book, cart.books))
+                          }
+                        >
+                          {cart.books.some((b: Book) => b.id == book.id) ? (
+                            <Check size={20} color={"white"} />
+                          ) : (
+                            <ShoppingCart size={20} color={"white"} />
+                          )}
+                        </Button>
                       </div>
                       <div className="flex flex-col justify-between p-4 leading-normal">
                         <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
