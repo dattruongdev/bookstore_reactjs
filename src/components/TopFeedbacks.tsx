@@ -23,7 +23,7 @@ const TopFeedbacks = () => {
       <CarouselContent className="gap-10">
         {feedbacks.length > 0
           ? feedbacks.map((fb: any, index: number) => (
-              <CarouselItem key={index} className="basis-1/3">
+              <CarouselItem key={index} className="basis-auto">
                 <div
                   onClick={() => setSelectedIndex(index)}
                   className={cn(

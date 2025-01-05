@@ -13,25 +13,22 @@ import {
 } from "./ui/sheet";
 import { useMemo } from "react";
 import { ScrollArea } from "./ui/scroll-area";
-import { useDispatch } from "react-redux";
-import { removeBook } from "../redux/slices/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { modifyQuantity, removeBook } from "../redux/slices/cartSlice";
 import { cn } from "../lib/utils";
+import { RootState } from "../redux/store";
 
 type CartProps = {
-  books: Book[];
+  // books?: Book[];
+  totalPrice: number;
 };
 
-export default function Cart({ books }: CartProps) {
+export default function Cart({ totalPrice }: CartProps) {
   const dispatch = useDispatch();
 
-  let value = useMemo(
-    () =>
-      books.reduce(
-        (acc, cur) => (acc += Number(cur?.bookPricing?.cost.amount ?? 0)),
-        0
-      ),
-    [books]
-  );
+  const cart = useSelector((state: RootState) => state.cart);
+  const books = cart.books;
+  console.log("BOOKS IN CART", books);
 
   return (
     <Sheet>
@@ -60,32 +57,62 @@ export default function Cart({ books }: CartProps) {
           >
             {books.length > 0 ? (
               books.map((book: Book) => (
-                <div className="flex items-center h-[100px] mb-3">
-                  <img src="/sale_off.png" className="object-cover h-2/3" />
-                  <div>
-                    <h3 className="text-xs">{book?.title}</h3>
-                    <p>
-                      {(book?.authors[0]?.fullName ?? "Unknown") &&
-                      book?.authors?.length > 1
-                        ? " and the others"
-                        : ""}
-                    </p>
+                <div className="flex items-center h-[100px] mb-3 gap-5">
+                  <div className="flex items-center w-1/2 h-[90%]">
+                    <img
+                      src={book?.imageUrl}
+                      className="object-cover w-full h-full rounded-lg mr-2 flex-[1]"
+                    />
+                    <div className="flex-[2]">
+                      <h3 className="text-xs">{book?.title}</h3>
+                      <p>
+                        {(book?.authors[0]?.fullName ?? "Unknown") &&
+                        book?.authors?.length > 1
+                          ? " and the others"
+                          : ""}
+                      </p>
+                    </div>
                   </div>
 
-                  <Input type="number" min="1" className="w-[60px] ml-auto" />
-                  <div className="ml-3">
-                    {book?.bookPricing?.cost.amount.toLocaleString("it-IT", {
-                      style: "currency",
-                      currency: "VND",
-                    })}
+                  <div className="flex items-center w-1/2 grow-0 shrink-0">
+                    <Input
+                      type="number"
+                      // value={1}
+                      value={book?.quantity}
+                      defaultValue={1}
+                      min="1"
+                      className="w-[60px] self-start mr-auto"
+                      onChange={(e) => {
+                        const el = e.target as HTMLInputElement;
+
+                        if (parseInt(el.value) < 1) {
+                          el.value = el.min;
+                        }
+                        if (isNaN(parseInt(el.value))) {
+                          el.value = el.min;
+                        }
+                        dispatch(
+                          modifyQuantity({
+                            bookId: book.id,
+                            quantity: parseInt(el.value),
+                          })
+                        );
+                      }}
+                    />
+                    <div className="ml-3">
+                      {book?.bookPricing?.cost.amount.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </div>
+                    <Button
+                      variant="destructive"
+                      className="ml-3 w-[20px] h-[30px]"
+                      onClick={() => dispatch(removeBook(book))}
+                    >
+                      <Trash color={"white"} />
+                    </Button>
                   </div>
-                  <Button
-                    variant="destructive"
-                    className="ml-3 w-[20px] h-[30px]"
-                    onClick={() => dispatch(removeBook(book))}
-                  >
-                    <Trash color={"white"} />
-                  </Button>
                 </div>
                 // <div className="flex flex-col shrink-0">
 
@@ -118,10 +145,12 @@ export default function Cart({ books }: CartProps) {
                   Total:
                 </p>
                 <p className="text-right flex-[1] shrink-0">
-                  {value.toLocaleString("it-IT", {
-                    style: "currency",
-                    currency: "VND",
-                  })}{" "}
+                  {cart.totalPrice == undefined
+                    ? 0 + " VND"
+                    : cart.totalPrice.toLocaleString("it-IT", {
+                        style: "currency",
+                        currency: "VND",
+                      })}{" "}
                 </p>
               </div>
               <Button

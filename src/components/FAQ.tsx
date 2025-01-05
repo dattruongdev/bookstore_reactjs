@@ -32,7 +32,7 @@ export default function FAQ() {
     },
   ]);
   return (
-    <div className="py-44 px-64 xl:px-72">
+    <div className="py-44 px-32 lg:px-64 xl:px-72">
       <h2 className="font-semibold text-2xl mb-8">Frequently Ask Questions</h2>
       <div className="flex flex-col">
         {questions.length > 0

@@ -16,14 +16,14 @@ export default function Contact() {
           Get the latest news and information about your favorite authors or
           books
         </h2>
-        <div className="flex flex-col lg:flex-row gap-5">
+        <div className="flex flex-col lg:flex-row gap-5 mt-5">
           <Input
             placeholder="Enter your email"
             className="rounded-full lg:flex-[3]"
           />
           <Button
             variant="ghost"
-            className="bg-pink-400 rounded-full lg:flex-[1]"
+            className="bg-pink-400 rounded-full lg:flex-[1] text-white"
           >
             Sign up
           </Button>

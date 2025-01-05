@@ -8,10 +8,17 @@ function Navbar() {
   return (
     <div className=" flex justify-between items-center w-full">
       <div className="navbar-start">
-        <a className="btn btn-ghost text-3xl">Booktopia</a>
+        <a className="btn btn-ghost text-3xl" href="/">
+          Booktopia
+        </a>
       </div>
-      <div className="navbar-end">
+      <div className="navbar-end relative">
         <Cart books={cart.books} />
+        {cart.books.length > 0 && (
+          <div className="rounded-full h-[15px] w-[15px] absolute bg-red-500 text-white top-1 right-1 text-xs">
+            {cart.books.length}
+          </div>
+        )}
       </div>
     </div>
   );

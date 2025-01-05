@@ -109,7 +109,7 @@ export const CommentRatings = ({
           })
         )}
       </div>
-      <span className="text-muted-foreground">
+      <span className="text-muted-foreground text-nowrap">
         Current Rating: {`${currentRating}`}
       </span>
     </div>

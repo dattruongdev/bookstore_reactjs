@@ -3,8 +3,9 @@ declare type Book = {
   title: string;
   imageUrl: string;
   authors: Author[];
-  featured: boolean;
+  isFeatured: boolean;
   bookPricing: {
+    id: string;
     cost: {
       amount: number;
       currencyCode: string;
@@ -18,14 +19,24 @@ declare type Book = {
     discount: number;
     weekDeal: boolean;
   };
-  categories: string[];
+  categories: { id: string; name: string }[];
   rating: number;
   publisher: string;
   publishedDate: string;
   description: string;
+  quantity: number;
 };
 
 declare type Author = {
   id: string;
   fullName: string;
+};
+
+declare type Review = {
+  id: string;
+  rating: number;
+  content: string;
+  bookId: string;
+  email: string;
+  username: string;
 };
