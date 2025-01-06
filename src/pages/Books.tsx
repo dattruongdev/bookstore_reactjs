@@ -1,8 +1,5 @@
-import { Grip, List, Menu, Play, Search, ShoppingCart } from "lucide-react";
+import { Grip, List, Menu, Play } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { Checkbox } from "../components/ui/checkbox";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
 import {
   Select,
   SelectContent,
@@ -10,10 +7,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import CartButton from "../components/CartButton";
-import { Separator } from "../components/ui/separator";
-import { Slider } from "../components/ui/slider";
 import {
   Pagination,
   PaginationContent,
@@ -23,10 +18,8 @@ import {
   PaginationEllipsis,
   PaginationNext,
 } from "../components/ui/pagination";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import BookCard from "../components/BookCard";
-import DualThumbSlider from "../components/DualThumbSlider";
-import { Ratings } from "../components/Rating";
 import {
   Sheet,
   SheetTrigger,
@@ -34,22 +27,9 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
-  SheetFooter,
-  SheetClose,
 } from "../components/ui/sheet";
-import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../components/ui/form";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import FilterForm from "../components/FilterForm";
+import SearchInputFilter from "../components/SearchInputFilter";
 
 type Props = {
   books: any[];
@@ -143,38 +123,16 @@ const GridScrollArea = ({ books }: Props) => {
   );
 };
 
-type SideFilterProps = {
+type FilterProps = {
   categories: {
     name: string;
     id: string;
   }[];
   authors: Author[];
+  modifyBooks: (books: Book[]) => void;
 };
 
-type FilterSheetProps = {
-  categories: {
-    name: string;
-    id: string;
-  }[];
-  authors: Author[];
-};
-
-const FormSchema = z.object({
-  categories: z.array(z.string()),
-  authors: z.array(z.string()),
-  minPrice: z.number(),
-  maxPrice: z.number(),
-  ratings: z.number(),
-});
-
-const FilterSheet = ({ categories, authors }: FilterSheetProps) => {
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(10000000);
-  const [threshold, setThreshold] = useState(10000000);
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
-  });
-
+const FilterSheet = ({ categories, authors, modifyBooks }: FilterProps) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -187,345 +145,69 @@ const FilterSheet = ({ categories, authors }: FilterSheetProps) => {
           <SheetTitle>Filter</SheetTitle>
           <SheetDescription>Choose filter for your preference</SheetDescription>
         </SheetHeader>
-        <div className="flex-col px-3 rounded-2xl min-w-56 flex mt-3">
-          <form className="relative w-full">
-            <Input
-              placeholder="Books by keyword"
-              className="bg-white/80 rounded-full w-full pr-14 focus:border-zinc-500 focus:ring-0 focus:outline-none"
-            />
-            <Button
-              variant="ghost"
-              className="bg-pink-400 px-5 rounded-full absolute top-0 right-0"
-            >
-              <Search />
-            </Button>
-          </form>
-          <form className="">
-            <h4 className="font-semibold text-2xl text-left mt-5">
-              Categories
-            </h4>
-            {categories.length > 0
-              ? categories.map((cat: { name: string; id: string }) => (
-                  <div className="flex gap-5 items-center ml-5 mt-3">
-                    <Label
-                      htmlFor="fiction"
-                      className="mr-auto text-lg text-neutral-600"
-                    >
-                      {cat.name}
-                    </Label>
-                    <Checkbox id="fiction" />
-                  </div>
-                ))
-              : null}
-            <Separator className="my-8 h-[3px]" />
-            <h4 className="font-semibold text-2xl text-left">Authors</h4>
-            {/* Authors here */}
-            {authors.length > 0
-              ? authors.map((author: Author) => (
-                  <div className="flex gap-5 items-center ml-5 mt-3">
-                    <Label
-                      htmlFor="fiction"
-                      className="mr-auto text-lg text-neutral-600"
-                    >
-                      {author.fullName}
-                    </Label>
-                    <Checkbox id="fiction" />
-                  </div>
-                ))
-              : null}
-
-            <Separator className="my-8 h-[3px]" />
-            <h4 className="font-semibold text-2xl text-left">Price</h4>
-            {/* <Slider
-              defaultValue={[0, 100]}
-              onValueChange={(values) => setMinMaxPrice(values)}
-            /> */}
-            <DualThumbSlider
-              defaultValue={[0, 200000]}
-              max={threshold}
-              value={[minPrice, maxPrice]}
-              onValueChange={(values) => {
-                setMinPrice(values[0]);
-                setMaxPrice(values[1]);
-              }}
-              className="mt-10"
-            />
-            <Separator className="mt-16 mb-10 h-[3px]" />
-
-            <h4 className="font-semibold text-2xl text-left">Ratings</h4>
-
-            <RadioGroup className="flex flex-col gap-5 ml-5 mt-3">
-              <div className="flex gap-5 items-center ml-5 mt-3">
-                <Label
-                  htmlFor="rating5"
-                  className="mr-auto text-lg text-neutral-600"
-                >
-                  <Ratings rating={5} />
-                </Label>
-                <RadioGroupItem value="5" id="rating5" />
-              </div>
-              <div className="flex gap-5 items-center ml-5 mt-3">
-                <Label
-                  htmlFor="rating4"
-                  className="mr-auto text-lg text-neutral-600"
-                >
-                  <Ratings rating={4} />
-                </Label>
-                <RadioGroupItem value="4" id="rating4" />
-              </div>
-              <div className="flex gap-5 items-center ml-5 mt-3">
-                <Label
-                  htmlFor="rating3"
-                  className="mr-auto text-lg text-neutral-600"
-                >
-                  <Ratings rating={3} />
-                </Label>
-                <RadioGroupItem value="3" id="rating3" />
-              </div>
-              <div className="flex gap-5 items-center ml-5 mt-3">
-                <Label
-                  htmlFor="rating2"
-                  className="mr-auto text-lg text-neutral-600"
-                >
-                  <Ratings rating={2} />
-                </Label>
-                <RadioGroupItem value="2" id="rating2" />
-              </div>
-              <div className="flex gap-5 items-center ml-5 mt-3">
-                <Label
-                  htmlFor="rating5"
-                  className="mr-auto text-lg text-neutral-600"
-                >
-                  <Ratings rating={1} />
-                </Label>
-                <RadioGroupItem value="1" id="rating1" />
-              </div>
-            </RadioGroup>
-          </form>
-        </div>
-        <SheetFooter>
-          <SheetClose asChild>
-            <Button type="submit" className="mt-10">
-              Filter
-            </Button>
-          </SheetClose>
-        </SheetFooter>
+        <FilterForm
+          categories={categories}
+          authors={authors}
+          onFilter={(books) => modifyBooks(books)}
+        />
       </SheetContent>
     </Sheet>
   );
 };
 
-const SideFilter = ({ categories, authors }: SideFilterProps) => {
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(10000000);
-  const [threshold, setThreshold] = useState(10000000);
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
-  });
-
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
-  }
-
+const SideFilter = ({ categories, authors, modifyBooks }: FilterProps) => {
   return (
     <div className="flex-col bg-zinc-100 p-8 rounded-2xl min-w-56 hidden lg:flex">
-      <form className="relative w-full">
-        <Input
-          placeholder="Books by keyword"
-          className="bg-white/80 rounded-full w-full pr-14 focus:border-zinc-500 focus:ring-0 focus:outline-none"
-        />
-        <Button
-          variant="ghost"
-          className="bg-pink-400 px-5 rounded-full absolute top-0 right-0"
-        >
-          <Search />
-        </Button>
-      </form>
-      {/*  */}
-
-      {/*  */}
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <h4 className="font-semibold text-2xl text-left mt-5">Categories</h4>
-          <FormField
-            control={form.control}
-            name="items"
-            render={() => (
-              <FormItem>
-                {categories.map((cat) => (
-                  <FormField
-                    key={cat.id}
-                    control={form.control}
-                    name="items"
-                    render={({ field }) => {
-                      return (
-                        <FormItem
-                          key={cat.id}
-                          className="flex flex-row items-start space-x-3 space-y-0 w-full"
-                        >
-                          <FormLabel className="font-normal mr-auto">
-                            {cat.name}
-                          </FormLabel>
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value?.includes(cat.id)}
-                              onCheckedChange={(checked) => {
-                                return checked
-                                  ? field.onChange([...field.value, cat.id])
-                                  : field.onChange(
-                                      field.value?.filter(
-                                        (value) => value !== cat.id
-                                      )
-                                    );
-                              }}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      );
-                    }}
-                  />
-                ))}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <h4 className="font-semibold text-2xl text-left">Authors</h4>
-          <FormField
-            control={form.control}
-            name="authors"
-            render={() => (
-              <FormItem>
-                {authors.map((author: Author) => (
-                  <FormField
-                    key={author.id}
-                    control={form.control}
-                    name="authors"
-                    render={({ field }) => {
-                      console.log(field, author);
-                      return (
-                        <FormItem
-                          key={author.id}
-                          className="flex flex-row items-start space-x-3 space-y-0 w-full"
-                        >
-                          <FormLabel className="font-normal mr-auto">
-                            {author.fullName}
-                          </FormLabel>
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value?.includes(author.id)}
-                              onCheckedChange={(checked) => {
-                                return checked
-                                  ? field.onChange([...field.value, author.id])
-                                  : field.onChange(
-                                      field.value?.filter(
-                                        (value) => value !== author.id
-                                      )
-                                    );
-                              }}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      );
-                    }}
-                  />
-                ))}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <h4 className="font-semibold text-2xl text-left">Price</h4>
-          <FormField
-            control={form.control}
-            name="authors"
-            render={() => (
-              <FormItem>
-                <DualThumbSlider
-                  defaultValue={[0, 200000]}
-                  max={threshold}
-                  value={[minPrice, maxPrice]}
-                  onValueChange={(values) => {
-                    setMinPrice(values[0]);
-                    setMaxPrice(values[1]);
-                  }}
-                  className="mt-10"
-                />
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <h4 className="font-semibold text-2xl text-left pt-10">Ratings</h4>
-          <FormField
-            control={form.control}
-            name="ratings"
-            render={() => (
-              <FormItem>
-                <RadioGroup className="flex flex-col gap-5 ml-5 mt-3">
-                  <div className="flex gap-5 items-center ml-5 mt-3">
-                    <Label
-                      htmlFor="rating5"
-                      className="mr-auto text-lg text-neutral-600"
-                    >
-                      <Ratings rating={5} />
-                    </Label>
-                    <RadioGroupItem value="5" id="rating5" />
-                  </div>
-                  <div className="flex gap-5 items-center ml-5 mt-3">
-                    <Label
-                      htmlFor="rating4"
-                      className="mr-auto text-lg text-neutral-600"
-                    >
-                      <Ratings rating={4} />
-                    </Label>
-                    <RadioGroupItem value="4" id="rating4" />
-                  </div>
-                  <div className="flex gap-5 items-center ml-5 mt-3">
-                    <Label
-                      htmlFor="rating3"
-                      className="mr-auto text-lg text-neutral-600"
-                    >
-                      <Ratings rating={3} />
-                    </Label>
-                    <RadioGroupItem value="3" id="rating3" />
-                  </div>
-                  <div className="flex gap-5 items-center ml-5 mt-3">
-                    <Label
-                      htmlFor="rating2"
-                      className="mr-auto text-lg text-neutral-600"
-                    >
-                      <Ratings rating={2} />
-                    </Label>
-                    <RadioGroupItem value="2" id="rating2" />
-                  </div>
-                  <div className="flex gap-5 items-center ml-5 mt-3">
-                    <Label
-                      htmlFor="rating5"
-                      className="mr-auto text-lg text-neutral-600"
-                    >
-                      <Ratings rating={1} />
-                    </Label>
-                    <RadioGroupItem value="1" id="rating1" />
-                  </div>
-                </RadioGroup>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit">Submit</Button>
-        </form>
-      </Form>
+      <SearchInputFilter onSearch={(books) => modifyBooks(books)} />
+      <FilterForm
+        categories={categories}
+        authors={authors}
+        onFilter={(books) => modifyBooks(books)}
+      />
     </div>
   );
 };
 
 export default function Books() {
-  const [books, setBooks] = useState<any>([]);
+  const [methods, setMethods] = useState<any>({
+    titleasc: () => {
+      setBooks((books: Book[]) =>
+        books.sort((a, b) => a.title.localeCompare(b.title))
+      );
+    },
+    titledesc: () => {
+      setBooks((books: Book[]) =>
+        books.sort((a, b) => b.title.localeCompare(a.title))
+      );
+    },
+    authorasc: () => {
+      setBooks((books: Book[]) =>
+        books.sort((a, b) =>
+          a.authors[0].fullName.localeCompare(b.authors[0].fullName)
+        )
+      );
+    },
+    authordesc: () => {
+      setBooks((books: Book[]) =>
+        books.sort((a, b) =>
+          b.authors[0].fullName.localeCompare(a.authors[0].fullName)
+        )
+      );
+    },
+    yearasc: () => {
+      setBooks((books: Book[]) =>
+        books.sort((a, b) => a.publishedDate.localeCompare(b.publishedDate))
+      );
+    },
+    yeardesc: () => {
+      setBooks((books: Book[]) =>
+        books.sort((a, b) => b.publishedDate.localeCompare(a.publishedDate))
+      );
+    },
+  });
+  const [direction, setDirection] = useState("asc");
+  const { state } = useLocation();
+  const [books, setBooks] = useState<any>(state?.books ?? []);
   const [categories, setCategories] = useState<
     {
       name: string;
@@ -533,19 +215,18 @@ export default function Books() {
     }[]
   >([]);
   const [authors, setAuthors] = useState<Author[]>([]);
-  const [totalDocSize, setTotalDocSize] = useState(0);
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(10000000);
-  const [threshold, setThreshold] = useState(10000000);
+  const [totalDocSize, setTotalDocSize] = useState(state?.totalDocSize ?? 0);
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, _] = useSearchParams();
   const [isListView, setIsListView] = useState(false);
-  const ref = useRef<HTMLSpanElement>();
+
+  console.log("totalDocSize", totalDocSize);
 
   useEffect(() => {
     if (!searchParams.get("page")) {
       searchParams.set("page", "1");
     }
+
     async function fetchCategories() {
       const res = await fetch(`${BASE_URL}/api/v1/catalog/categories`);
       const { response } = await res.json();
@@ -566,6 +247,9 @@ export default function Books() {
     }
 
     async function fetchBooks() {
+      if (books.length > 0) {
+        return;
+      }
       const res = await fetch(
         `${BASE_URL}/api/v1/catalog/books-by-page?page=${searchParams.get(
           "page"
@@ -583,77 +267,49 @@ export default function Books() {
   return (
     <div className="flex min-h-screen my-10 gap-10">
       <div className="shrink-0">
-        <SideFilter categories={categories} authors={authors} />
+        <SideFilter
+          categories={categories}
+          authors={authors}
+          modifyBooks={(books) => setBooks(books)}
+        />
       </div>
 
       <div className="grow overflow-hidden">
         <div className="flex py-5 px-6 rounded-3xl bg-zinc-100 w-full justify-between items-center">
           <div>
-            {/* <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" className="rounded-full lg:hidden">
-                  <Menu className="scale-125" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side={"left"}>
-                <SheetHeader>
-                  <SheetTitle>Edit profile</SheetTitle>
-                  <SheetDescription>
-                    Make changes to your profile here. Click save when you're
-                    done.
-                  </SheetDescription>
-                </SheetHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">
-                      Name
-                    </Label>
-                    <Input
-                      id="name"
-                      value="Pedro Duarte"
-                      className="col-span-3"
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="username" className="text-right">
-                      Username
-                    </Label>
-                    <Input
-                      id="username"
-                      value="@peduarte"
-                      className="col-span-3"
-                    />
-                  </div>
-                </div>
-                <SheetFooter>
-                  <SheetClose asChild>
-                    <Button type="submit">Save changes</Button>
-                  </SheetClose>
-                </SheetFooter>
-              </SheetContent>
-            </Sheet> */}
-            <FilterSheet categories={categories} authors={authors} />
+            <FilterSheet
+              categories={categories}
+              authors={authors}
+              modifyBooks={(books) => setBooks(books)}
+            />
           </div>
 
           <div className="flex items-center gap-5">
-            <Select>
+            <Select onValueChange={(value) => methods[value + direction]()}>
               <SelectTrigger className="border-2 border-b-black bg-white/60">
                 <SelectValue placeholder="Default sorting" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="hello">HELLO</SelectItem>
-                <SelectItem value="hello">HELLO</SelectItem>
-                <SelectItem value="hello">HELLO</SelectItem>
+                <SelectItem value="author">Author</SelectItem>
+                <SelectItem value="year">Year</SelectItem>
+                <SelectItem value="title">Title</SelectItem>
               </SelectContent>
             </Select>
-            <Select>
+            <Select
+              defaultValue="asc"
+              value={direction}
+              onValueChange={(value) => setDirection(value)}
+            >
               <SelectTrigger className="border-2 border-b-black bg-white/60">
-                <SelectValue placeholder="Show all result" />
+                <SelectValue placeholder="Direction" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="hello">HELLO</SelectItem>
-                <SelectItem value="hello">HELLO</SelectItem>
-                <SelectItem value="hello">HELLO</SelectItem>
+                <SelectItem value="asc" onClick={() => {}}>
+                  ASC
+                </SelectItem>
+                <SelectItem value="desc" onClick={() => {}}>
+                  DESC
+                </SelectItem>
               </SelectContent>
             </Select>
 

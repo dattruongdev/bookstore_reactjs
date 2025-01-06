@@ -8,6 +8,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home.tsx";
 import Books from "./pages/Books.tsx";
 import Book from "./pages/Book.tsx";
+import Payment from "./pages/payment/Payment.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
@@ -18,6 +19,7 @@ createRoot(document.getElementById("root")!).render(
             <Route index element={<Home />} />
             <Route path="/books" element={<Books />} />
             <Route path="/books/:id" element={<Book />} />
+            <Route path="/books/payment" element={<Payment />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -5,7 +5,10 @@ export function mapApiResponseToBook(book: any): Book {
     imageUrl: book.imageUrl as string,
     bookPricing: book.bookPricing,
     rating: book.rating,
-    authors: book.authors,
+    authors: book.authors.map((author: any) => ({
+      id: author.id ?? author._id,
+      fullName: author.fullName,
+    })),
     isFeatured: book.featured,
     publisher: book.publisher,
     publishedDate: book.publishedDate,

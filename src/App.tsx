@@ -3,7 +3,7 @@ import Footer from "./components/Footer";
 import { Outlet } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Contact from "./components/Contact";
-import ScrollToTop from "./components/ScrollToTop";
+import { Toaster } from "./components/ui/toaster";
 
 function App() {
   return (
@@ -14,6 +14,7 @@ function App() {
       </div>
       <Contact />
       <Footer />
+      <Toaster />
     </div>
   );
 }

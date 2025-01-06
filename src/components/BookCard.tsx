@@ -54,9 +54,9 @@ export default function BookCard({ book, direction, className }: Props) {
           </p>
 
           <h2 className="text-2xl text-left">
-            {book?.bookPricing?.cost.amount == 0
+            {book?.bookPricing?.cost?.amount == 0
               ? "Free"
-              : book?.bookPricing?.cost.amount.toLocaleString("it-IT", {
+              : book?.bookPricing?.cost?.amount.toLocaleString("it-IT", {
                   style: "currency",
                   currency: "VND",
                 })}{" "}
@@ -116,9 +116,9 @@ export default function BookCard({ book, direction, className }: Props) {
 
         <div className="flex items-center justify-center">
           <h2 className="text-2xl text-pink-400">
-            {book?.bookPricing?.cost.amount == 0
+            {book?.bookPricing?.cost?.amount == 0
               ? "Free"
-              : book?.bookPricing?.cost.amount.toLocaleString("it-IT", {
+              : book?.bookPricing?.cost?.amount.toLocaleString("it-IT", {
                   style: "currency",
                   currency: "VND",
                 })}

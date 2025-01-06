@@ -11,20 +11,16 @@ import {
   SheetFooter,
   SheetClose,
 } from "./ui/sheet";
-import { useMemo } from "react";
 import { ScrollArea } from "./ui/scroll-area";
 import { useDispatch, useSelector } from "react-redux";
 import { modifyQuantity, removeBook } from "../redux/slices/cartSlice";
 import { cn } from "../lib/utils";
 import { RootState } from "../redux/store";
+import { useNavigate } from "react-router-dom";
 
-type CartProps = {
-  // books?: Book[];
-  totalPrice: number;
-};
-
-export default function Cart({ totalPrice }: CartProps) {
+export default function Cart() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const cart = useSelector((state: RootState) => state.cart);
   const books = cart.books;
@@ -64,12 +60,10 @@ export default function Cart({ totalPrice }: CartProps) {
                       className="object-cover w-full h-full rounded-lg mr-2 flex-[1]"
                     />
                     <div className="flex-[2]">
-                      <h3 className="text-xs">{book?.title}</h3>
-                      <p>
-                        {(book?.authors[0]?.fullName ?? "Unknown") &&
-                        book?.authors?.length > 1
-                          ? " and the others"
-                          : ""}
+                      <h3 className="text-xs font-semibold">{book?.title}</h3>
+                      <p className="text-xs">
+                        {(book?.authors[0]?.fullName ?? "Unknown") +
+                          (book?.authors?.length > 1 ? " and the others" : "")}
                       </p>
                     </div>
                   </div>
@@ -154,9 +148,11 @@ export default function Cart({ totalPrice }: CartProps) {
                 </p>
               </div>
               <Button
-                type="submit"
                 disabled={books.length == 0}
                 className="self-end mt-3"
+                onClick={() =>
+                  navigate("/books/payment", { state: cart.books })
+                }
               >
                 Checkout
               </Button>
