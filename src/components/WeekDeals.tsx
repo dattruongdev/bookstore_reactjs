@@ -102,7 +102,10 @@ export default function WeekDeals() {
   }, [books]);
 
   return (
-    <div className="mt-[6rem] min-h-[1500px] xl:min-h-[900px] flex flex-col  bg-zinc-100 p-10">
+    <div
+      className="mt-[6rem] min-h-[1500px] xl:min-h-[900px] flex flex-col  bg-zinc-100 p-10"
+      id="week-deals"
+    >
       <div className="flex items-center justify-between">
         <h2 className="font-semibold text-xl text-left mb-7">
           DEALS OF THE WEEK
@@ -122,7 +125,9 @@ export default function WeekDeals() {
             onClick={() => {
               console.log("BOOKS[0]", books[0]);
 
-              navigate(`/books/${books[0]?.id}`, { state: { book: books[0] } });
+              navigate(`/books/${books[0]?._id}`, {
+                state: { book: books[0] },
+              });
             }}
             className="flex grow-0 w-full flex-col items-start bg-white border border-gray-200 rounded-lg shadow  hover:bg-gray-100 h-[450px]  relative"
           >
@@ -220,15 +225,15 @@ export default function WeekDeals() {
 function WeekDealsCarouselItem({ books }: { books: Book[] }) {
   const navigate = useNavigate();
   return (
-    <CarouselItem key={books[0]?.id}>
+    <CarouselItem key={books[0]?._id}>
       <div className="flex justify-center">
         <div className="grid grid-rows-2 grid-cols-1 gap-4">
           {books.map((book: Book) => (
             <div
               className=" flex items-center justify-center bg-white border border-gray-200 rounded-lg shadow  hover:bg-gray-100 shrink-0 w-[600px] min-h-[150px] max-h-[250px] h-full max-w-[550px]"
-              key={book.id}
+              key={book._id}
               onClick={() =>
-                navigate(`/books/${book?.id}`, { state: { book } })
+                navigate(`/books/${book?._id}`, { state: { book } })
               }
             >
               <img

@@ -17,14 +17,19 @@ import { modifyQuantity, removeBook } from "../redux/slices/cartSlice";
 import { cn } from "../lib/utils";
 import { RootState } from "../redux/store";
 import { useNavigate } from "react-router-dom";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@radix-ui/react-tooltip";
 
 export default function Cart() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const cart = useSelector((state: RootState) => state.cart);
-  const books = cart.books;
-  console.log("BOOKS IN CART", books);
+  const items = cart.items;
 
   return (
     <Sheet>
@@ -36,35 +41,62 @@ export default function Cart() {
       <SheetContent className="flex flex-col">
         <SheetHeader className="flex-[1]">
           <SheetTitle>Booktopia Cart</SheetTitle>
-          {books.length > 0 ? (
+          {items.length > 0 ? (
             <>
               <SheetDescription>
                 Should you choose more? Good deals await
               </SheetDescription>
               <SheetDescription>
-                You currently have {books?.length} items in your cart
+                You currently have {items?.length} items in your cart
               </SheetDescription>
             </>
           ) : null}
         </SheetHeader>
         <div className="flex-[7] rounded-md border flex flex-col justify-center items-center overflow-hidden">
           <ScrollArea
-            className={cn("w-full px-5", books.length > 0 ? "mb-auto" : "")}
+            className={cn("w-full px-5", items.length > 0 ? "mb-auto" : "")}
           >
-            {books.length > 0 ? (
-              books.map((book: Book) => (
+            {items.length > 0 ? (
+              items.map((item) => (
                 <div className="flex items-center h-[100px] mb-3 gap-5">
                   <div className="flex items-center w-1/2 h-[90%]">
                     <img
-                      src={book?.imageUrl}
+                      src={item?.book?.imageUrl}
                       className="object-cover w-full h-full rounded-lg mr-2 flex-[1]"
                     />
                     <div className="flex-[2]">
-                      <h3 className="text-xs font-semibold">{book?.title}</h3>
+                      <h3 className="text-xs font-semibold">
+                        {item?.book?.title}
+                      </h3>
                       <p className="text-xs">
-                        {(book?.authors[0]?.fullName ?? "Unknown") +
-                          (book?.authors?.length > 1 ? " and the others" : "")}
+                        {(item?.book?.authors[0]?.fullName ?? "Unknown") +
+                          (item?.book?.authors?.length > 1
+                            ? " and the others"
+                            : "")}
                       </p>
+                    </div>
+                    <div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            {item?.method == "buy" ? (
+                              <img src={"/buy.png"} className="w-[15px]" />
+                            ) : (
+                              <img src={"/borrow.png"} className="w-[15px]" />
+                            )}
+                          </TooltipTrigger>
+                          <TooltipContent
+                            side="top"
+                            className="bg-black rounded-lg p-1 text-xs"
+                          >
+                            {item?.method == "buy" ? (
+                              <p className="text-white">Buy</p>
+                            ) : (
+                              <p className="text-white">Borrow</p>
+                            )}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   </div>
 
@@ -72,9 +104,10 @@ export default function Cart() {
                     <Input
                       type="number"
                       // value={1}
-                      value={book?.quantity}
+                      value={item?.book?.quantity}
                       defaultValue={1}
                       min="1"
+                      max={item?.book?.numberOfCopies}
                       className="w-[60px] self-start mr-auto"
                       onChange={(e) => {
                         const el = e.target as HTMLInputElement;
@@ -87,22 +120,26 @@ export default function Cart() {
                         }
                         dispatch(
                           modifyQuantity({
-                            bookId: book.id,
+                            bookId: item?.book?._id,
                             quantity: parseInt(el.value),
                           })
                         );
                       }}
                     />
                     <div className="ml-3">
-                      {book?.bookPricing?.cost.amount.toLocaleString("it-IT", {
-                        style: "currency",
-                        currency: "VND",
-                      })}
+                      {item?.costForMethod &&
+                        item?.book?.quantity &&
+                        (
+                          item.costForMethod * item.book.quantity
+                        ).toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })}
                     </div>
                     <Button
                       variant="destructive"
                       className="ml-3 w-[20px] h-[30px]"
-                      onClick={() => dispatch(removeBook(book))}
+                      onClick={() => dispatch(removeBook(item.book))}
                     >
                       <Trash color={"white"} />
                     </Button>
@@ -148,13 +185,13 @@ export default function Cart() {
                 </p>
               </div>
               <Button
-                disabled={books.length == 0}
+                disabled={items.length == 0}
                 className="self-end mt-3"
                 onClick={() =>
-                  navigate("/books/payment", { state: cart.books })
+                  navigate("/books/payment", { state: cart.items })
                 }
               >
-                Checkout
+                Go to payment
               </Button>
             </div>
           </SheetClose>

@@ -17,9 +17,9 @@ function Navbar() {
       </div>
       <div className="navbar-end relative">
         <Cart />
-        {cart.books.length > 0 && (
+        {cart.items.length > 0 && (
           <div className="rounded-full h-[15px] w-[15px] absolute bg-red-500 text-white top-1 right-1 text-xs">
-            {cart.books.length}
+            {cart.items.length}
           </div>
         )}
       </div>

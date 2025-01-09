@@ -43,7 +43,7 @@ export default function Book() {
 
   async function fetchNextReviews() {
     const res = await fetch(
-      `${BASE_URL}/api/v1/catalog/${book.id}/reviews?page=${page + 1}&size=6`
+      `${BASE_URL}/api/v1/catalog/${book._id}/reviews?page=${page + 1}&size=6`
     );
     if (!res.ok) {
       return;
@@ -66,7 +66,7 @@ export default function Book() {
       );
       const res = await fetch(
         `${BASE_URL}/api/v1/catalog/related-books?bookId=${
-          book.id
+          book._id
         }&categories=${book?.categories.map((cat, index) =>
           index ? "," + cat.id : cat.id
         )}`
@@ -88,7 +88,7 @@ export default function Book() {
   useEffect(() => {
     async function fetchReviews() {
       const res = await fetch(
-        `${BASE_URL}/api/v1/catalog/${book.id}/reviews?page=${page}&size=6`
+        `${BASE_URL}/api/v1/catalog/${book._id}/reviews?page=${page}&size=6`
       );
       if (!res.ok) {
         return;
@@ -109,7 +109,7 @@ export default function Book() {
     e.preventDefault();
 
     const res = await fetch(
-      `${BASE_URL}/api/v1/catalog/${book.id}/reviews/add`,
+      `${BASE_URL}/api/v1/catalog/${book._id}/reviews/add`,
       {
         method: "POST",
         headers: {
@@ -120,7 +120,7 @@ export default function Book() {
           name,
           email,
           content: review,
-          bookId: book.id,
+          bookId: book._id,
         }),
       }
     );
@@ -183,18 +183,35 @@ export default function Book() {
                 {book?.publishedDate.substring(0, 4)}
               </p>
             </div>
+
+            <div className="ml-auto">Available: {book?.numberOfCopies}</div>
           </div>
 
           <Separator color="grey" className="my-5" />
 
           <div className="flex items-center justify-between">
-            <div className="text-xl text-pink-400">
-              {book?.bookPricing?.cost.amount == 0
-                ? "Free"
-                : book?.bookPricing?.cost.amount.toLocaleString("it-IT", {
-                    style: "currency",
-                    currency: "VND",
-                  })}{" "}
+            <div className="flex items-center gap-3">
+              <p className="text-xl text-pink-400 ">
+                {book?.bookPricing?.cost.amount == 0
+                  ? "Free"
+                  : book?.bookPricing?.cost.amount.toLocaleString("it-IT", {
+                      style: "currency",
+                      currency: "VND",
+                    })}{" "}
+              </p>
+              {book?.bookPricing?.discount > 0 && (
+                <p className="text-zinc-400 line-through">
+                  {book?.bookPricing?.originalCost.amount == 0
+                    ? "Free"
+                    : book?.bookPricing?.originalCost.amount.toLocaleString(
+                        "it-IT",
+                        {
+                          style: "currency",
+                          currency: "VND",
+                        }
+                      )}
+                </p>
+              )}
             </div>
 
             <CartButton book={book} />

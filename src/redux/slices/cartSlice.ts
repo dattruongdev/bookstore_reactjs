@@ -1,8 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
-type BookCartItem = {
+export type BookCartItem = {
   book: Book;
+  costForMethod: number;
   method: "buy" | "borrow";
 };
 
@@ -30,7 +31,11 @@ const cartSlice = createSlice({
       state.status = "LOADING";
     },
     addBooks(state, action: PayloadAction<Book[]>) {
-      state.items = action.payload.map((book) => ({ book, method: "buy" }));
+      state.items = action.payload.map((book) => ({
+        book,
+        method: "buy",
+        costForMethod: book.bookPricing.cost.amount,
+      }));
       state.status = "LOADED";
       state.totalPrice = action.payload.reduce(
         (acc, cur) => acc + cur?.bookPricing?.cost.amount,
@@ -38,14 +43,19 @@ const cartSlice = createSlice({
       );
     },
     addBook(state, action: PayloadAction<Book>) {
-      state.items.push({ book: action.payload, method: "buy" });
+      console.log("INSIDE addBook action", action.payload);
+      state.items.push({
+        book: { ...action.payload, quantity: 1 },
+        method: "buy",
+        costForMethod: action.payload.bookPricing.cost.amount,
+      });
       state.status = "LOADED";
       state.totalPrice += action.payload?.bookPricing?.cost.amount;
       localStorage.setItem("cart", JSON.stringify(state));
     },
     removeBook(state, action: PayloadAction<Book>) {
       state.items = state.items.filter(
-        (item) => item?.book?.id !== action.payload?.id
+        (item) => item?.book?._id !== action.payload?._id
       );
       if (state.items.length === 0) {
         state.status = "EMPTY";
@@ -67,7 +77,7 @@ const cartSlice = createSlice({
       action: PayloadAction<{ bookId: string; method: "buy" | "borrow" }>
     ) {
       state.items = state.items.map((item) => {
-        if (item?.book?.id === action.payload.bookId) {
+        if (item?.book?._id === action.payload.bookId) {
           item.method = action.payload.method;
           item.book.bookPricing.cost.amount =
             action.payload.method === "buy"
@@ -85,12 +95,49 @@ const cartSlice = createSlice({
       action: PayloadAction<{ bookId: string; quantity: number }>
     ) {
       state.totalPrice = state.items.reduce((acc, cur) => {
-        if (cur?.book?.id === action.payload.bookId) {
+        if (cur?.book?._id === action.payload.bookId) {
           cur.book.quantity = action.payload.quantity;
         }
 
-        return acc + cur?.book?.bookPricing?.cost.amount * cur?.book?.quantity;
+        return acc + cur?.costForMethod * cur?.book?.quantity;
       }, 0);
+
+      localStorage.setItem("cart", JSON.stringify(state));
+    },
+    updateBookFromTable(
+      state,
+      action: PayloadAction<{ index: number; columnId: string; value: any }>
+    ) {
+      state.items = state.items.map((item, index) => {
+        if (index === action.payload.index) {
+          if (action.payload.columnId === "method") {
+            item.method = action.payload.value;
+
+            item.costForMethod =
+              action.payload.value == "buy"
+                ? item.book.bookPricing.cost.amount
+                : item.book.bookPricing.cost.amount / 2;
+          } else {
+            item.book = {
+              ...item.book,
+              [action.payload.columnId]: action.payload.value,
+            };
+          }
+          state.totalPrice = state.items.reduce(
+            (acc, cur) =>
+              acc +
+              cur?.book?.bookPricing?.cost.amount *
+                cur?.book?.quantity *
+                (cur.method == "buy" ? 1 : 1 / 2),
+            0
+          );
+        }
+        state.items.forEach((item) => {
+          console.log(item.method);
+        });
+
+        return item;
+      });
 
       localStorage.setItem("cart", JSON.stringify(state));
     },
@@ -104,6 +151,7 @@ export const {
   modifyQuantity,
   addBooks,
   changeMethod,
+  updateBookFromTable,
 } = cartSlice.actions;
 
 export const selectCart = (state: RootState) => state.cart;

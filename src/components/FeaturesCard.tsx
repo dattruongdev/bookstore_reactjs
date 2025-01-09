@@ -4,12 +4,15 @@ import { Play } from "lucide-react";
 export default function FeaturesCard({
   textA,
   textB,
+  id,
 }: {
   textA: string;
   textB: string;
+  id: string;
 }) {
   return (
-    <div
+    <a
+      href={"#" + id}
       className="w-[200px] h-[200px] relative"
       style={{
         backgroundImage: "url(https://picsum.photos/id/24/300/200)",
@@ -31,6 +34,6 @@ export default function FeaturesCard({
           More <Play color="#834deb" />
         </Button>
       </div>
-    </div>
+    </a>
   );
 }

@@ -145,13 +145,13 @@ export default function FilterForm({
               </div>
               {authors.map((item) => (
                 <FormField
-                  key={item.id}
+                  key={item._id}
                   control={form.control}
                   name="authors"
                   render={({ field }) => {
                     return (
                       <FormItem
-                        key={item.id}
+                        key={item._id}
                         className="flex flex-row items-start space-x-3 space-y-0"
                       >
                         <FormLabel className="font-normal mr-auto text-nowrap mb-3">
@@ -159,13 +159,13 @@ export default function FilterForm({
                         </FormLabel>
                         <FormControl>
                           <Checkbox
-                            checked={field.value?.includes(item.id)}
+                            checked={field.value?.includes(item._id)}
                             onCheckedChange={(checked) => {
                               return checked
-                                ? field.onChange([...field.value, item.id])
+                                ? field.onChange([...field.value, item._id])
                                 : field.onChange(
                                     field.value?.filter(
-                                      (value) => value !== item.id
+                                      (value) => value !== item._id
                                     )
                                   );
                             }}

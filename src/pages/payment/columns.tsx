@@ -13,11 +13,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
+import { BookCartItem } from "../../redux/slices/cartSlice";
+import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/button";
+import { Trash } from "lucide-react";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
-export const columns: ColumnDef<Book>[] = [
+export const columns: ColumnDef<BookCartItem>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -44,7 +48,7 @@ export const columns: ColumnDef<Book>[] = [
     accessorKey: "image",
     header: () => <div className="text-left">Image</div>,
     cell: ({ row }) => {
-      const image = row.original.imageUrl as string;
+      const image = row.original.book.imageUrl as string;
 
       return <img className="max-h-[100px] rounded-lg" src={image} />;
     },
@@ -53,8 +57,8 @@ export const columns: ColumnDef<Book>[] = [
     accessorKey: "title",
     header: "Title",
     cell: ({ row }) => {
-      const title = row.original.title as string;
-      const authors = row.original.authors;
+      const title = row.original.book.title as string;
+      const authors = row.original.book.authors;
 
       return (
         <div className="max-h-[100px] rounded-lg text-left">
@@ -71,7 +75,7 @@ export const columns: ColumnDef<Book>[] = [
                     className="bg-black rounded-lg p-5"
                   >
                     {authors.slice(1).map((author) => (
-                      <div key={author.id} className="text-white">
+                      <div key={author._id} className="text-white">
                         {author.fullName}
                       </div>
                     ))}
@@ -90,9 +94,11 @@ export const columns: ColumnDef<Book>[] = [
     accessorKey: "method",
     header: "Method",
     cell: ({ row, table }) => {
+      console.log(row);
       return (
         <Select
           defaultValue="buy"
+          value={row.original.method}
           onValueChange={(value) => {
             table.options.meta?.updateData(row.index, "method", value);
           }}
@@ -101,12 +107,8 @@ export const columns: ColumnDef<Book>[] = [
             <SelectValue placeholder="Direction" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="buy" onClick={() => {}}>
-              Buy
-            </SelectItem>
-            <SelectItem value="borrow" onClick={() => {}}>
-              Borrow
-            </SelectItem>
+            <SelectItem value="buy">Buy</SelectItem>
+            <SelectItem value="borrow">Borrow</SelectItem>
           </SelectContent>
         </Select>
       );
@@ -116,7 +118,7 @@ export const columns: ColumnDef<Book>[] = [
     accessorKey: "price",
     header: "Price",
     cell: ({ row }) => {
-      const price = row.original.bookPricing?.cost.amount as number;
+      const price = row.original.costForMethod as number;
 
       return (
         <div className="max-h-[100px] rounded-lg text-left">
@@ -131,20 +133,63 @@ export const columns: ColumnDef<Book>[] = [
   {
     accessorKey: "quantity",
     header: "Quantity",
+    cell: ({ row, table }) => {
+      return (
+        <Input
+          value={row.original.book.quantity}
+          type="number"
+          min="1"
+          max={row.original.book.numberOfCopies}
+          className="min-w-50px w-[30%]"
+          onChange={(e) => {
+            const el = e.target as HTMLInputElement;
+
+            if (parseInt(el.value) < 1) {
+              el.value = el.min;
+            }
+            if (isNaN(parseInt(el.value))) {
+              el.value = el.min;
+            }
+            table.options.meta?.updateData(
+              row.index,
+              "quantity",
+              parseInt(e.target.value)
+            );
+          }}
+        />
+      );
+    },
   },
   {
     accessorKey: "total",
     header: "Total",
-    cell: ({ row }) => {
-      const price = (row.original.bookPricing?.cost.amount *
-        row.original.quantity) as number;
-
+    cell: ({ row, table }) => {
+      console.log(row.original);
       return (
         <div className="max-h-[100px] rounded-lg text-left">
-          {price.toLocaleString("it-IT", {
+          {(
+            row.original.costForMethod * row.original.book.quantity
+          ).toLocaleString("it-IT", {
             style: "currency",
             currency: "VND",
           })}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "actions",
+    enableHiding: true,
+    cell: ({ row, table }) => {
+      return (
+        <div className="flex items-center">
+          <Button
+            variant="destructive"
+            className="ml-3 w-[20px] h-[30px]"
+            onClick={() => table.options.meta?.removeBook(row.index)}
+          >
+            <Trash color={"white"} />
+          </Button>
         </div>
       );
     },

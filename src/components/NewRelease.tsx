@@ -37,13 +37,9 @@ export default function NewRelease() {
     fetchData();
   }, []);
   return (
-    <div className="mt-[6rem]">
+    <div className="mt-[6rem]" id="new-release">
       <div className="flex items-center justify-between">
         <h2 className="font-semibold text-xl text-left mb-7">NEW RELEASE</h2>
-
-        <a href="#" className="text-pink-400">
-          View all
-        </a>
       </div>
       <div className="h-[1px] bg-zinc-300 mb-12"></div>
       {/* Cards here */}
@@ -51,7 +47,7 @@ export default function NewRelease() {
       <div className="flex flex-col lg:flex-row items-center justify-center overflow-hidden gap-5 px-10">
         {books && books[0] && (
           <a
-            key={books[0]?.id}
+            key={books[0]?._id}
             href="#"
             className="flex flex-col items-center justify-center bg-white border border-gray-200 rounded-lg shadow md:flex-row  hover:bg-gray-100 w-full lg:w-1/2 h-[500px]"
           >
@@ -95,10 +91,15 @@ export default function NewRelease() {
                 className="flex w-[150px] rounded-full mt-4 bg-pink-400"
                 onClick={(e) => {
                   e.preventDefault();
-                  dispatch(addOrRemoveBookFromCart(books[0], cart.books));
+                  dispatch(
+                    addOrRemoveBookFromCart(
+                      books[0],
+                      cart.items.map((i) => i.book)
+                    )
+                  );
                 }}
               >
-                {cart?.books?.some((b: Book) => b?.id == books[0]?.id)
+                {cart?.items?.some((item) => item?.book?._id == books[0]?._id)
                   ? "Remove from Cart"
                   : "Add to Cart"}
               </Button>

@@ -17,10 +17,10 @@ export default function Home() {
       <Hero />
       <Searches />
       <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center gap-10">
-        <FeaturesCard textA={"Featured"} textB={"Books"} />
-        <FeaturesCard textA={"New"} textB={"Release"} />
-        <FeaturesCard textA={"Week"} textB={"Deals"} />
-        <FeaturesCard textA={"Reader's"} textB={"Pick"} />
+        <FeaturesCard textA={"Featured"} textB={"Books"} id="featured" />
+        <FeaturesCard textA={"New"} textB={"Release"} id="new-release" />
+        <FeaturesCard textA={"Week"} textB={"Deals"} id="week-deals" />
+        <FeaturesCard textA={"Reader's"} textB={"Pick"} id="readers-pick" />
       </div>
 
       <FeaturedBooks />

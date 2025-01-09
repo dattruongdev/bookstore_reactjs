@@ -22,8 +22,8 @@ export default function BookCard({ book, direction, className }: Props) {
   if (direction === "horizontal") {
     return (
       <div
-        onClick={() => navigate(`/books/${book?.id}`, { state: { book } })}
-        key={book?.id}
+        onClick={() => navigate(`/books/${book?._id}`, { state: { book } })}
+        key={book?._id}
         className={cn(
           "flex flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 max-w-[400px]",
           className
@@ -52,6 +52,9 @@ export default function BookCard({ book, direction, className }: Props) {
           <p className="mb-3 font-normal text-gray-700 dark:text-gray-400 text-left">
             {book?.publishedDate.substring(0, 4)} | {book?.publisher}
           </p>
+          <p className="mb-3 font-normal text-gray-700 dark:text-gray-400 text-left">
+            Available: {book?.numberOfCopies}
+          </p>
 
           <h2 className="text-2xl text-left">
             {book?.bookPricing?.cost?.amount == 0
@@ -70,8 +73,8 @@ export default function BookCard({ book, direction, className }: Props) {
 
   return (
     <div
-      onClick={() => navigate(`/books/${book?.id}`, { state: { book } })}
-      key={book?.id}
+      onClick={() => navigate(`/books/${book?._id}`, { state: { book } })}
+      key={book?._id}
       className=" flex flex-col items-center justify-center bg-white border border-gray-200 rounded-lg shadow  hover:bg-gray-100 shrink-0 w-[350px] h-[500px]"
     >
       <div className="relative mb-auto w-full h-2/3">
@@ -87,10 +90,15 @@ export default function BookCard({ book, direction, className }: Props) {
             e.preventDefault();
             e.stopPropagation();
 
-            dispatch(addOrRemoveBookFromCart(book, cart.books));
+            dispatch(
+              addOrRemoveBookFromCart(
+                book,
+                cart.items.map((i) => i.book)
+              )
+            );
           }}
         >
-          {cart.books.find((b) => b?.id === book?.id) ? (
+          {cart.items.find((item) => item?.book?._id === book?._id) ? (
             <Check size={20} color={"white"} />
           ) : (
             <ShoppingCart size={20} color={"white"} />
@@ -125,9 +133,9 @@ export default function BookCard({ book, direction, className }: Props) {
             {" | "}
           </h2>
 
-          <a href="#" className="text-pink-400 underline ml-3">
-            More
-          </a>
+          <p className="text-pink-400 underline ml-3">
+            Available: {book?.numberOfCopies}
+          </p>
         </div>
       </div>
     </div>

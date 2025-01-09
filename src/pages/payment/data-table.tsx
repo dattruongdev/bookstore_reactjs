@@ -23,19 +23,26 @@ import {
   SelectContent,
   SelectItem,
 } from "@radix-ui/react-select";
+import {
+  BookCartItem,
+  removeBook,
+  updateBookFromTable,
+} from "../../redux/slices/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { checkout } from "../../api";
+import { useNavigate } from "react-router-dom";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  setData: React.Dispatch<React.SetStateAction<TData[]>>;
 }
 
 export function DataTable<TData, TValue>({
   columns,
-  data,
-  setData,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({});
+  const dispatch = useDispatch();
+  const cart = useSelector((state: any) => state.cart);
+  const data = cart.items;
 
   const table = useReactTable({
     data,
@@ -48,14 +55,17 @@ export function DataTable<TData, TValue>({
     },
     meta: {
       updateData: (rowIndex: number, columnId: string, value: unknown) => {
-        setData((prev) =>
-          prev.map((row, index) =>
-            index == rowIndex ? { ...prev[rowIndex], [columnId]: value } : row
-          )
-        );
+        console.log("UPDATING", rowIndex, columnId, value);
+        dispatch(updateBookFromTable({ index: rowIndex, columnId, value }));
+      },
+      removeBook: (rowIndex: number) => {
+        const item: BookCartItem = data[rowIndex];
+        dispatch(removeBook(item.book));
       },
     },
   });
+
+  const navigate = useNavigate();
 
   return (
     <div className="rounded-md border">
@@ -160,19 +170,21 @@ export function DataTable<TData, TValue>({
               <tr>
                 <td className="p-3">Subtotal</td>
                 <td className="p-3">
-                  {table
-                    .getSelectedRowModel()
-                    .rows.reduce(
-                      (acc, row) =>
-                        acc +
-                        ((row.original as Book).bookPricing?.cost.amount ?? 0) *
-                          (row.original as Book).quantity,
-                      0
-                    )
-                    .toLocaleString("it-IT", {
-                      style: "currency",
-                      currency: "VND",
-                    })}
+                  {table.getSelectedRowModel().rows.length > 0
+                    ? table
+                        .getSelectedRowModel()
+                        .rows.reduce(
+                          (acc, row) =>
+                            acc +
+                            (row.original as BookCartItem).costForMethod *
+                              (row.original as BookCartItem).book?.quantity,
+                          0
+                        )
+                        .toLocaleString("it-IT", {
+                          style: "currency",
+                          currency: "VND",
+                        })
+                    : "0 VND"}
                 </td>
               </tr>
               <tr>
@@ -201,23 +213,36 @@ export function DataTable<TData, TValue>({
             size="lg"
             className="bg-pink-400 rounded-full text-white flex items-center gap-5 group"
             disabled={table.getSelectedRowModel().rows.length <= 0}
+            onClick={async () => {
+              const items = table
+                .getSelectedRowModel()
+                .rows.map((item) => item.original as BookCartItem);
+              const res = await checkout(items);
+              if (res != null) {
+                const { url } = res;
+
+                window.location.href = url;
+              }
+            }}
           >
             Checkout
             <p className=" font-semibold group-hover:text-pink-400">
-              {(
-                table
-                  .getSelectedRowModel()
-                  .rows.reduce(
-                    (acc, row) =>
-                      acc +
-                      ((row.original as Book).bookPricing?.cost.amount ?? 0) *
-                        (row.original as Book).quantity,
-                    0
-                  ) + 100000
-              ).toLocaleString("it-IT", {
-                style: "currency",
-                currency: "VND",
-              })}
+              {table.getSelectedRowModel().rows.length > 0
+                ? (
+                    table
+                      .getSelectedRowModel()
+                      .rows.reduce(
+                        (acc, row) =>
+                          acc +
+                          (row.original as BookCartItem).costForMethod *
+                            (row.original as BookCartItem).book?.quantity,
+                        0
+                      ) + 100000
+                  ).toLocaleString("it-IT", {
+                    style: "currency",
+                    currency: "VND",
+                  })
+                : "0 VND"}
             </p>
           </Button>
         </div>
