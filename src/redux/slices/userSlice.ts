@@ -1,9 +1,12 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
 type User = {
+  id: string;
   first_name: string;
   last_name: string;
+  email: string;
+  image: string;
 };
 
 type SliceState = {
@@ -23,10 +26,23 @@ const userSlice = createSlice({
     logout(state) {
       state.user = null;
       state.token = null;
+      localStorage.removeItem("token");
     },
-    login(state, action) {
-      state.user = action.payload.user;
-      state.token = action.payload.token;
+    login(state, action: PayloadAction<string>) {
+      const token = action.payload;
+      if (token) {
+        state.token = token;
+      } else {
+        return;
+      }
+      const data = token?.split(".")[1];
+      if (!data) return;
+
+      const decoded = atob(data || "");
+      const { sub, ...user } = JSON.parse(decoded);
+
+      state.user = user;
+      console.log(user);
     },
   },
 });

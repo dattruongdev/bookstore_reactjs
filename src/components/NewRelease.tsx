@@ -16,6 +16,7 @@ import { RootState } from "../redux/store";
 import { addOrRemoveBookFromCart } from "../utils/cart";
 import Book from "../pages/Book";
 import BookCard from "./BookCard";
+import { useNavigate } from "react-router-dom";
 
 const BASE_URL: string = import.meta.env.VITE_BASE_URL;
 
@@ -23,6 +24,8 @@ export default function NewRelease() {
   const [books, setBooks] = useState<any>([]);
   const dispatch = useDispatch();
   const cart = useSelector((state: RootState) => state.cart);
+  const navigate = useNavigate();
+  console.log("BOOKS IN NEW RELEASE ", books);
 
   useEffect(() => {
     async function fetchData() {
@@ -46,10 +49,16 @@ export default function NewRelease() {
 
       <div className="flex flex-col lg:flex-row items-center justify-center overflow-hidden gap-5 px-10">
         {books && books[0] && (
-          <a
+          <div
             key={books[0]?._id}
-            href="#"
             className="flex flex-col items-center justify-center bg-white border border-gray-200 rounded-lg shadow md:flex-row  hover:bg-gray-100 w-full lg:w-1/2 h-[500px]"
+            onClick={() => {
+              console.log("BOOK FROM NEWRELEASE ", books[0]);
+
+              navigate(`/books/${books[0]?._id}`, {
+                state: { book: books[0] },
+              });
+            }}
           >
             <img
               className="object-cover w-full md:w-1/3 rounded-t-lg h-1/2 mr-3"
@@ -104,7 +113,7 @@ export default function NewRelease() {
                   : "Add to Cart"}
               </Button>
             </div>
-          </a>
+          </div>
         )}
 
         {/* other deals */}

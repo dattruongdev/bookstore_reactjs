@@ -30,6 +30,9 @@ import {
 } from "../components/ui/sheet";
 import FilterForm from "../components/FilterForm";
 import SearchInputFilter from "../components/SearchInputFilter";
+import { mapApiResponseToBook } from "../utils/mapper";
+import { fetchAuthors, fetchBooksInPage, fetchCategories } from "../api";
+import { useAuth } from "../hooks/use-auth";
 
 type Props = {
   books: any[];
@@ -110,6 +113,7 @@ const ListScrollArea = ({ books }: Props) => {
 };
 
 const GridScrollArea = ({ books }: Props) => {
+  console.log("BOOKS IN GRID Scroll", books);
   return (
     <div className="w-full mt-10">
       <div className="grid md:grid-cols-2 2xl:grid-cols-3 gap-10 justify-center p-10">
@@ -208,14 +212,10 @@ export default function Books() {
   const [direction, setDirection] = useState("asc");
   const { state } = useLocation();
   const [books, setBooks] = useState<any>(state?.books ?? []);
-  const [categories, setCategories] = useState<
-    {
-      name: string;
-      id: string;
-    }[]
-  >([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [totalDocSize, setTotalDocSize] = useState(state?.totalDocSize ?? 0);
+  const { token } = useAuth();
 
   const [searchParams, _] = useSearchParams();
   const [isListView, setIsListView] = useState(false);
@@ -227,43 +227,17 @@ export default function Books() {
       searchParams.set("page", "1");
     }
 
-    async function fetchCategories() {
-      const res = await fetch(`${BASE_URL}/api/v1/catalog/categories`);
-      const { response } = await res.json();
-      setCategories(response.data);
-    }
-
-    async function fetchAuthors() {
-      const res = await fetch(
-        `${BASE_URL}/api/v1/catalog/authors?page=0&size=6`
-      );
-      const { response } = await res.json();
-      if (!res.ok) {
-        console.error("Failed to fetch authors");
-        return;
+    if (!token) return;
+    fetchBooksInPage(searchParams.get("page") as unknown as number).then(
+      ({ books, docSize }) => {
+        setBooks(books);
+        setTotalDocSize(docSize);
       }
+    );
 
-      setAuthors(response.data);
-    }
-
-    async function fetchBooks() {
-      if (books.length > 0) {
-        return;
-      }
-      const res = await fetch(
-        `${BASE_URL}/api/v1/catalog/books-by-page?page=${searchParams.get(
-          "page"
-        )}`
-      );
-      const { response } = await res.json();
-      setBooks(response.data ?? []);
-      setTotalDocSize(response.totalBooks);
-    }
-
-    fetchBooks();
-    fetchCategories();
-    fetchAuthors();
-  }, []);
+    fetchCategories().then((categories) => setCategories(categories));
+    fetchAuthors().then((authors) => setAuthors(authors));
+  }, [token]);
   return (
     <div className="flex min-h-screen my-10 gap-10">
       <div className="shrink-0">

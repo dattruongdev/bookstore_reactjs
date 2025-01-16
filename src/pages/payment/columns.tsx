@@ -94,7 +94,6 @@ export const columns: ColumnDef<BookCartItem>[] = [
     accessorKey: "method",
     header: "Method",
     cell: ({ row, table }) => {
-      console.log(row);
       return (
         <Select
           defaultValue="buy"
@@ -109,6 +108,32 @@ export const columns: ColumnDef<BookCartItem>[] = [
           <SelectContent>
             <SelectItem value="buy">Buy</SelectItem>
             <SelectItem value="borrow">Borrow</SelectItem>
+          </SelectContent>
+        </Select>
+      );
+    },
+  },
+
+  {
+    accessorKey: "days",
+    header: "Days Borrow",
+    cell: ({ row, table }) => {
+      return (
+        <Select
+          disabled={row.getValue("method") === "buy"}
+          defaultValue="1"
+          value={row.original?.days.toString()}
+          onValueChange={(value) => {
+            table.options.meta?.updateData(row.index, "days", value);
+          }}
+        >
+          <SelectTrigger className="border-2 border-b-black bg-white/60">
+            <SelectValue placeholder="Days" />
+          </SelectTrigger>
+          <SelectContent>
+            {Array.from({ length: 7 }, (_, i) => i + 1).map((day) => (
+              <SelectItem value={day.toString()}>{day} Day(s)</SelectItem>
+            ))}
           </SelectContent>
         </Select>
       );
@@ -140,7 +165,7 @@ export const columns: ColumnDef<BookCartItem>[] = [
           type="number"
           min="1"
           max={row.original.book.numberOfCopies}
-          className="min-w-50px w-[30%]"
+          className="min-w-50px w-[50%]"
           onChange={(e) => {
             const el = e.target as HTMLInputElement;
 
@@ -164,7 +189,6 @@ export const columns: ColumnDef<BookCartItem>[] = [
     accessorKey: "total",
     header: "Total",
     cell: ({ row, table }) => {
-      console.log(row.original);
       return (
         <div className="max-h-[100px] rounded-lg text-left">
           {(

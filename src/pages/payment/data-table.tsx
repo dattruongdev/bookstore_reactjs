@@ -31,6 +31,8 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { checkout } from "../../api";
 import { useNavigate } from "react-router-dom";
+import { RootState } from "../../redux/store";
+import { get } from "http";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -42,7 +44,9 @@ export function DataTable<TData, TValue>({
   const [rowSelection, setRowSelection] = useState({});
   const dispatch = useDispatch();
   const cart = useSelector((state: any) => state.cart);
+  const user = useSelector((state: RootState) => state.auth.user);
   const data = cart.items;
+  const [isBuy, setIsBuy] = useState(false);
 
   const table = useReactTable({
     data,
@@ -55,17 +59,18 @@ export function DataTable<TData, TValue>({
     },
     meta: {
       updateData: (rowIndex: number, columnId: string, value: unknown) => {
-        console.log("UPDATING", rowIndex, columnId, value);
         dispatch(updateBookFromTable({ index: rowIndex, columnId, value }));
       },
       removeBook: (rowIndex: number) => {
         const item: BookCartItem = data[rowIndex];
         dispatch(removeBook(item.book));
       },
+      getIsBuy: () => isBuy,
     },
   });
 
   const navigate = useNavigate();
+  const token = useSelector((state: RootState) => state.auth.token);
 
   return (
     <div className="rounded-md border">
@@ -217,7 +222,17 @@ export function DataTable<TData, TValue>({
               const items = table
                 .getSelectedRowModel()
                 .rows.map((item) => item.original as BookCartItem);
-              const res = await checkout(items);
+              if (token == null) {
+                navigate("/auth/login");
+                return;
+              }
+
+              if (user == null) {
+                navigate("/auth/login");
+                return;
+              }
+
+              const res = await checkout(items, token, user.id);
               if (res != null) {
                 const { url } = res;
 

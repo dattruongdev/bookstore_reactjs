@@ -13,12 +13,6 @@ export default function Payment() {
     <div className="min-h-screen">
       <h2 className="font-semibold text-3xl my-10">Checkout</h2>
       <DataTable columns={columns} />
-      <Elements stripe={stripePromise} options={options}>
-        <form>
-          <PaymentElement />
-          <button>Submit</button>
-        </form>
-      </Elements>
     </div>
   );
 }

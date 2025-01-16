@@ -17,6 +17,7 @@ export default function CartButton({ book }: Props) {
   const cart = useSelector((state: RootState) => state.cart);
   return (
     <Button
+      disabled={book?.numberOfCopies == 0}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -36,12 +37,14 @@ export default function CartButton({ book }: Props) {
           "bg-purple-500"
       )}
     >
-      {cart &&
-      cart.items &&
-      cart.items.some((b: BookCartItem) => b?.book?._id == book?._id)
+      {book?.numberOfCopies == 0
+        ? "Sold out"
+        : cart &&
+          cart.items &&
+          cart.items.some((b: BookCartItem) => b?.book?._id == book?._id)
         ? "Remove cart"
         : "Add cart"}
-      <ShoppingCart color="white" />
+      {book?.numberOfCopies ? <ShoppingCart color="white" /> : null}
     </Button>
   );
 }

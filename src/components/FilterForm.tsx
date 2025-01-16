@@ -20,6 +20,7 @@ import DualThumbSlider from "./DualThumbSlider";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
 import { Ratings } from "./Rating";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -76,15 +77,6 @@ export default function FilterForm({
     const dta = response.data;
 
     onFilter(dta);
-
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
   }
 
   return (
@@ -94,43 +86,46 @@ export default function FilterForm({
           control={form.control}
           name="categories"
           render={() => (
-            <FormItem>
+            <FormItem className="mb-5 overflow-hidden">
               <div className="mb-4">
                 <FormLabel className="text-base">Categories</FormLabel>
               </div>
-              {categories.map((item) => (
-                <FormField
-                  key={item.id}
-                  control={form.control}
-                  name="categories"
-                  render={({ field }) => {
-                    return (
-                      <FormItem
-                        key={item.id}
-                        className="flex flex-row items-start space-x-3 space-y-0"
-                      >
-                        <FormLabel className="font-normal mr-auto text-nowrap mb-3">
-                          {item.name}
-                        </FormLabel>
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value?.includes(item.id)}
-                            onCheckedChange={(checked) => {
-                              return checked
-                                ? field.onChange([...field.value, item.id])
-                                : field.onChange(
-                                    field.value?.filter(
-                                      (value) => value !== item.id
-                                    )
-                                  );
-                            }}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    );
-                  }}
-                />
-              ))}
+              <ScrollArea className="h-[200px] overflow-y-auto no-scrollbar">
+                {categories?.map((item) => (
+                  <FormField
+                    key={item.id}
+                    control={form.control}
+                    name="categories"
+                    render={({ field }) => {
+                      return (
+                        <FormItem
+                          key={item.id}
+                          className="flex flex-row items-start space-x-3 space-y-0"
+                        >
+                          <FormLabel className="font-normal mr-auto text-nowrap mb-3">
+                            {item.name}
+                          </FormLabel>
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value?.includes(item.id)}
+                              onCheckedChange={(checked) => {
+                                return checked
+                                  ? field.onChange([...field.value, item.id])
+                                  : field.onChange(
+                                      field.value?.filter(
+                                        (value) => value !== item.id
+                                      )
+                                    );
+                              }}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                ))}
+              </ScrollArea>
+
               <FormMessage />
             </FormItem>
           )}
@@ -143,39 +138,42 @@ export default function FilterForm({
               <div className="mb-4">
                 <FormLabel className="text-base">Authors</FormLabel>
               </div>
-              {authors.map((item) => (
-                <FormField
-                  key={item._id}
-                  control={form.control}
-                  name="authors"
-                  render={({ field }) => {
-                    return (
-                      <FormItem
-                        key={item._id}
-                        className="flex flex-row items-start space-x-3 space-y-0"
-                      >
-                        <FormLabel className="font-normal mr-auto text-nowrap mb-3">
-                          {item.fullName}
-                        </FormLabel>
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value?.includes(item._id)}
-                            onCheckedChange={(checked) => {
-                              return checked
-                                ? field.onChange([...field.value, item._id])
-                                : field.onChange(
-                                    field.value?.filter(
-                                      (value) => value !== item._id
-                                    )
-                                  );
-                            }}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    );
-                  }}
-                />
-              ))}
+              <div className="h-[200px] overflow-y-auto no-scrollbar">
+                {authors?.map((item) => (
+                  <FormField
+                    key={item._id}
+                    control={form.control}
+                    name="authors"
+                    render={({ field }) => {
+                      return (
+                        <FormItem
+                          key={item._id}
+                          className="flex flex-row items-start space-x-3 space-y-0"
+                        >
+                          <FormLabel className="font-normal mr-auto text-nowrap mb-3">
+                            {item.fullName}
+                          </FormLabel>
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value?.includes(item._id)}
+                              onCheckedChange={(checked) => {
+                                return checked
+                                  ? field.onChange([...field.value, item._id])
+                                  : field.onChange(
+                                      field.value?.filter(
+                                        (value) => value !== item._id
+                                      )
+                                    );
+                              }}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                ))}
+              </div>
+
               <FormMessage />
             </FormItem>
           )}

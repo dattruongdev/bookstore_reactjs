@@ -25,16 +25,16 @@ export default function BookCard({ book, direction, className }: Props) {
         onClick={() => navigate(`/books/${book?._id}`, { state: { book } })}
         key={book?._id}
         className={cn(
-          "flex flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 max-w-[400px]",
+          "flex flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 max-w-[600px] max-h-[600px]",
           className
         )}
       >
         <img
-          className="object-cover w-full rounded-lg h-full"
+          className="object-cover w-full rounded-lg h-1/2 md:h-full"
           src={book?.imageUrl}
           alt=""
         />
-        <div className="flex flex-col justify-between p-4 leading-normal">
+        <div className="flex flex-col justify-between p-4 leading-normal w-full">
           <div className="flex items-center">
             <span className="mr-3">{Number(book?.rating).toFixed(1)}</span>
 
@@ -83,27 +83,32 @@ export default function BookCard({ book, direction, className }: Props) {
           src={book?.imageUrl}
           alt=""
         />
+        {book?.numberOfCopies == 0 ? (
+          <div className="absolute top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center pointer-events-none">
+            <p className="text-white bg-rose-500 p-3 rounded-lg">Sold out</p>
+          </div>
+        ) : (
+          <Button
+            className="absolute right-0 bg-pink-400 z-[2] bottom-0 p-3"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
 
-        <Button
-          className="absolute right-0 bg-pink-400 z-[2] bottom-0 p-3"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            dispatch(
-              addOrRemoveBookFromCart(
-                book,
-                cart.items.map((i) => i.book)
-              )
-            );
-          }}
-        >
-          {cart.items.find((item) => item?.book?._id === book?._id) ? (
-            <Check size={20} color={"white"} />
-          ) : (
-            <ShoppingCart size={20} color={"white"} />
-          )}
-        </Button>
+              dispatch(
+                addOrRemoveBookFromCart(
+                  book,
+                  cart.items.map((i) => i.book)
+                )
+              );
+            }}
+          >
+            {cart.items.find((item) => item?.book?._id === book?._id) ? (
+              <Check size={20} color={"white"} />
+            ) : (
+              <ShoppingCart size={20} color={"white"} />
+            )}
+          </Button>
+        )}
       </div>
       <div className="flex flex-col justify-between p-4 leading-normal">
         <h5 className="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">

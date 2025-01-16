@@ -7,7 +7,7 @@ import { Toaster } from "./components/ui/toaster";
 
 function App() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen w-full">
       <Navbar />
       <div className="grow">
         <Outlet />

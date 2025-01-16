@@ -40,6 +40,7 @@ export default function Book() {
   const [page, setPage] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
   const book: Book = state?.book;
+  console.log("BOOK:", book);
 
   async function fetchNextReviews() {
     const res = await fetch(
@@ -264,7 +265,9 @@ export default function Book() {
                 </tr>
                 <tr>
                   <td className="p-5 font-semibold">Publication date:</td>
-                  <td className="p-5 text-zinc-500">01 Jan 2022</td>
+                  <td className="p-5 text-zinc-500">
+                    {new Date(book?.publishedDate).toDateString()}
+                  </td>
                 </tr>
               </tbody>
             </table>

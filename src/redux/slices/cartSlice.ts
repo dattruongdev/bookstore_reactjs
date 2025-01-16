@@ -5,6 +5,7 @@ export type BookCartItem = {
   book: Book;
   costForMethod: number;
   method: "buy" | "borrow";
+  days: number;
 };
 
 type CartState = {
@@ -35,6 +36,7 @@ const cartSlice = createSlice({
         book,
         method: "buy",
         costForMethod: book.bookPricing.cost.amount,
+        days: 0,
       }));
       state.status = "LOADED";
       state.totalPrice = action.payload.reduce(
@@ -48,6 +50,7 @@ const cartSlice = createSlice({
         book: { ...action.payload, quantity: 1 },
         method: "buy",
         costForMethod: action.payload.bookPricing.cost.amount,
+        days: 0,
       });
       state.status = "LOADED";
       state.totalPrice += action.payload?.bookPricing?.cost.amount;
@@ -61,8 +64,10 @@ const cartSlice = createSlice({
         state.status = "EMPTY";
       }
 
-      state.totalPrice -=
-        action.payload?.bookPricing?.cost.amount * action.payload?.quantity;
+      state.totalPrice = state.items.reduce(
+        (acc, cur) => acc + cur?.costForMethod * cur?.book?.quantity,
+        0
+      );
 
       localStorage.setItem("cart", JSON.stringify(state));
     },
@@ -108,6 +113,12 @@ const cartSlice = createSlice({
       state,
       action: PayloadAction<{ index: number; columnId: string; value: any }>
     ) {
+      console.log(
+        "HELLOOOOOOO",
+        action.payload.index,
+        action.payload.columnId,
+        action.payload.value
+      );
       state.items = state.items.map((item, index) => {
         if (index === action.payload.index) {
           if (action.payload.columnId === "method") {
@@ -117,7 +128,14 @@ const cartSlice = createSlice({
               action.payload.value == "buy"
                 ? item.book.bookPricing.cost.amount
                 : item.book.bookPricing.cost.amount / 2;
+          } else if (action.payload.columnId === "days") {
+            state.items[index].days = action.payload.value;
           } else {
+            console.log(
+              "CHOSEN FOR DAYS",
+              action.payload.columnId,
+              action.payload.value
+            );
             item.book = {
               ...item.book,
               [action.payload.columnId]: action.payload.value,
@@ -132,9 +150,6 @@ const cartSlice = createSlice({
             0
           );
         }
-        state.items.forEach((item) => {
-          console.log(item.method);
-        });
 
         return item;
       });

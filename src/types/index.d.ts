@@ -42,3 +42,29 @@ declare type Review = {
   email: string;
   username: string;
 };
+
+declare type Category = {
+  id: string;
+  name: string;
+};
+
+declare type Borrow = {
+  id: string;
+  title: string;
+  bookId: string;
+  copyId: string;
+  price: number;
+  currency: string;
+  borrowedAt: string;
+  borrowUntil: string;
+  endDate: string;
+};
+
+declare type Buy = {
+  id: string;
+  title: string;
+  quantity: number;
+  totalPrice: number;
+  boughtAt: string;
+  currency: string;
+};
